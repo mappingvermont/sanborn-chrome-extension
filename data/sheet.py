@@ -20,19 +20,23 @@ class Sheet(object):
 	def download(self):
 		city_text = self.city.replace(' ', '_')
 
-		cwd = os.path.dirname(os.path.realpath(__file__))
-		local_path = os.path.join(cwd, 'images', city_text, self.year, self.sheet_num + '.jpg')
+		ext = os.path.splitext(self.loc_url)[1]
 
-		s3_base_url = r'http://vermont-sanborn-maps.s3.amazonaws.com/from-loc/{}/{}/{}.jpg'
+		cwd = os.path.dirname(os.path.realpath(__file__))
+		local_path = os.path.join(cwd, 'images', city_text, self.year, self.sheet_num + ext)
+
+		s3_base_url = r'http://vermont-sanborn-maps.s3.amazonaws.com/from-loc/{}/{}/{}' + ext
 		self.s3_url = s3_base_url.format(city_text, self.year, self.sheet_num)
 
 		mkdir_p(os.path.dirname(local_path))
 
-		#r = requests.get(self.loc_url, stream=True)
-		#if r.status_code == 200:
-		#    with open(self.local_path, 'wb') as f:
-		#        r.raw.decode_content = True
-		#        shutil.copyfileobj(r.raw, f)  
+		r = requests.get(self.loc_url, stream=True)
+		if r.status_code == 200:
+		    with open(local_path, 'wb') as f:
+		        r.raw.decode_content = True
+		        shutil.copyfileobj(r.raw, f)  
+		else:
+			raise ValueError('status code {} returned'.format(r.status_code))
 
 
 

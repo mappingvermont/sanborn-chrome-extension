@@ -38,9 +38,13 @@ def build_city_dict(vt_page):
 	    		city_link = cell.find('a').get('href')
 	    		final_dict[city_name] = {'base_url': city_link, 'data': []}
 
+	print 'filtering by lyndonville remove this'
+	final_dict = {x:y for (x,y) in final_dict.iteritems() if x == 'Lyndonville'}
+
 	return final_dict
 
 def add_sheet_lists(final_dict):
+
 	for city, city_dict in final_dict.iteritems():
 
 		city_url = sanborn_root + r'/' + city_dict['base_url']
@@ -69,26 +73,67 @@ def add_sheet_lists(final_dict):
 def download_data(final_dict):
 	sheet_list = []
 
-	print final_dict
-
 	for city, city_dict in final_dict.iteritems():
 
 		valid_rows = [x for x in city_dict['data'] if 'http' in x['url']]
 
 		for row in valid_rows:
-
-			sanborn_id = os.path.split(row['url'])[1].replace('.', ':')
 			year = row['date'].split()[1]
 
-			id_part1 = sanborn_id.replace(year, '').split(':')[1][1:]
+			if city == 'Lyndonville' and int(year) >= 1900:
+				sheet_list += build_old_url(city, row, year)
 
-			for sheet_num in range(1, row['sheets'] + 1):
-				sheet_id = str(sheet_num).zfill(4)
-
-				sheet_url = img_root.format(full_id=sanborn_id, part1=id_part1, year=year, sheet=sheet_id)
-				sheet = Sheet(city, year, sheet_num, sheet_url)
-				sheet_list.append(sheet)
-
-				sheet.download()
+			else:
+				sheet_list += build_new_url(city, row, year)
 
 	return sheet_list
+
+def build_new_url(city, row, year):
+
+	sheet_list = []
+
+	sanborn_id = os.path.split(row['url'])[1].replace('.', ':')
+	id_part1 = sanborn_id.replace(year, '').split(':')[1][1:]
+
+	for sheet_num in range(1, row['sheets'] + 1):
+		sheet_id = str(sheet_num).zfill(4)
+
+		sheet_url = img_root.format(full_id=sanborn_id, part1=id_part1, year=year, sheet=sheet_id)
+		sheet = Sheet(city, year, sheet_num, sheet_url)
+		sheet_list.append(sheet)
+
+		sheet.download()
+
+	return sheet_list
+
+def build_old_url(city, row, year):
+
+	sheet_list = []
+
+	base_url = 'http://memory.loc.gov/'
+
+	r = requests.get(row['url'])
+	soup = BeautifulSoup(r.content, "lxml")
+
+	final_dict = {}
+	links = [x.get('href') for x in soup.find_all("a") if 'Image' in x.text]
+
+	for l in links:
+		single_page = base_url + l
+
+		r = requests.get(single_page)
+		soup = BeautifulSoup(r.content, "lxml")
+
+		download_link = base_url + [x.get('href') for x in soup.find_all('a') if 'Download JPEG2000' in x.text][0]
+		loc_image_name = os.path.splitext(os.path.basename(download_link))[0]
+
+		sheet_num = str(int(loc_image_name[3:]) / 10)
+
+		sheet = Sheet(city, year, sheet_num, download_link)
+		sheet_list.append(sheet)
+
+		sheet.download()
+
+	return sheet_list
+
+

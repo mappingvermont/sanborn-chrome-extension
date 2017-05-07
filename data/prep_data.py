@@ -21,6 +21,7 @@ def push_to_s3():
 
 	s3_basedir = r's3://vermont-sanborn-maps/from-loc/'
 	cmd = ['aws', 's3', 'cp', '.', s3_basedir, '--recursive', '--dryrun']
+	cmd += ['--exclude', '*', '--include', '*.jpg']
 
 	subprocess.check_call(cmd, cwd=images_dir)
 
