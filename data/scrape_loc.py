@@ -38,8 +38,9 @@ def build_city_dict(vt_page):
 	    		city_link = cell.find('a').get('href')
 	    		final_dict[city_name] = {'base_url': city_link, 'data': []}
 
-	print 'filtering by lyndonville remove this'
-	final_dict = {x:y for (x,y) in final_dict.iteritems() if x == 'Lyndonville'}
+	# print 'filtering by lyndonville remove this'
+	# skip_list = ['Bennington', 'Springfield', 'Bethel', 'Burlington', 'South Royalton', 'Barre', 'Waterbury', 'Brattleboro', "Saxton's River", 'Essex Junction', 'Fair Haven', 'Middlebury', 'Hyde_Park', 'Stowe', 'Poultney', 'Lyndonville', 'Brandon', 'Richmond', 'Barton Landing', 'Lyndon']
+	# final_dict = {x:y for (x,y) in final_dict.iteritems() if x not in skip_list}
 
 	return final_dict
 
@@ -73,6 +74,10 @@ def add_sheet_lists(final_dict):
 def download_data(final_dict):
 	sheet_list = []
 
+	old_lookup_dict = {'Middlebury': 1905, 'Lyndonville': 1900,
+					   'Lyndon': 1900, 'Manchester': 1904,
+					   'Montpelier': 1905}
+
 	for city, city_dict in final_dict.iteritems():
 
 		valid_rows = [x for x in city_dict['data'] if 'http' in x['url']]
@@ -80,10 +85,16 @@ def download_data(final_dict):
 		for row in valid_rows:
 			year = row['date'].split()[1]
 
-			if city == 'Lyndonville' and int(year) >= 1900:
-				sheet_list += build_old_url(city, row, year)
+			try:
+				year_limit = old_lookup_dict[city]
 
-			else:
+				if int(year) >= year_limit:
+					sheet_list += build_old_url(city, row, year)
+
+				else:
+					sheet_list += build_new_url(city, row, year)
+
+			except KeyError:
 				sheet_list += build_new_url(city, row, year)
 
 	return sheet_list
@@ -101,6 +112,8 @@ def build_new_url(city, row, year):
 		sheet_url = img_root.format(full_id=sanborn_id, part1=id_part1, year=year, sheet=sheet_id)
 		sheet = Sheet(city, year, sheet_num, sheet_url)
 		sheet_list.append(sheet)
+
+		print sheet_url
 
 		sheet.download()
 
@@ -133,6 +146,8 @@ def build_old_url(city, row, year):
 		sheet_list.append(sheet)
 
 		sheet.download()
+
+		sheet.convert()
 
 	return sheet_list
 

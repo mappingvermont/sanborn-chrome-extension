@@ -20,8 +20,9 @@ def push_to_s3():
 	images_dir = os.path.join(cwd, 'images')
 
 	s3_basedir = r's3://vermont-sanborn-maps/from-loc/'
-	cmd = ['aws', 's3', 'cp', '.', s3_basedir, '--recursive', '--dryrun']
+	cmd = ['aws', 's3', 'cp', '.', s3_basedir, '--recursive']
 	cmd += ['--exclude', '*', '--include', '*.jpg']
+	cmd += ['--profile', 'mappingvt']
 
 	subprocess.check_call(cmd, cwd=images_dir)
 
@@ -30,7 +31,7 @@ def dump_to_json(sheet_list):
 	root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 	output_json = os.path.join(root_dir, 'sheets.json')
 
-	sheet_prop_list = [s.__dict__ for s in sheet_list]
+	sheet_prop_list = [s.dump_vars() for s in sheet_list]
 
 	# add the var so we can just include this in the header
 	# and not worry about loading it asynchronously
