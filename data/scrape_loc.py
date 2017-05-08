@@ -34,7 +34,7 @@ def build_city_dict(vt_page):
 
 	    for cell in cols:
 	    	if '*' in cell.text.strip():
-	    		city_name = cell.text.replace('*','').strip()
+	    		city_name = cell.text.replace('*','').replace("'", '').strip()
 	    		city_link = cell.find('a').get('href')
 	    		final_dict[city_name] = {'base_url': city_link, 'data': []}
 
@@ -110,10 +110,8 @@ def build_new_url(city, row, year):
 		sheet_id = str(sheet_num).zfill(4)
 
 		sheet_url = img_root.format(full_id=sanborn_id, part1=id_part1, year=year, sheet=sheet_id)
-		sheet = Sheet(city, year, sheet_num, sheet_url)
+		sheet = Sheet(city, year, sheet_num, sheet_url, row['url'])
 		sheet_list.append(sheet)
-
-		print sheet_url
 
 		sheet.download()
 
@@ -142,7 +140,7 @@ def build_old_url(city, row, year):
 
 		sheet_num = str(int(loc_image_name[3:]) / 10)
 
-		sheet = Sheet(city, year, sheet_num, download_link)
+		sheet = Sheet(city, year, sheet_num, download_link, row['url'])
 		sheet_list.append(sheet)
 
 		sheet.download()

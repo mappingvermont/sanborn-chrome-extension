@@ -8,13 +8,14 @@ from retrying import retry
 
 class Sheet(object):
 
-	def __init__(self, city, year, sheet_num, loc_url):
+	def __init__(self, city, year, sheet_num, loc_url, gallery_url):
 
 		print 'Creating sheet for {} in {}, sheet num {}'.format(city, year, sheet_num)
 		self.city = city.lower()
 		self.year = year
 		self.sheet_num = str(sheet_num)
 		self.loc_url = loc_url
+		self.gallery_url = gallery_url
 
 		self.s3_url = None
 		self.local_path = None
@@ -28,7 +29,7 @@ class Sheet(object):
 		cwd = os.path.dirname(os.path.realpath(__file__))
 		self.local_path = os.path.join(cwd, 'images', city_text, self.year, self.sheet_num + ext)
 
-		s3_base_url = r'http://vermont-sanborn-maps.s3.amazonaws.com/from-loc/{}/{}/{}' + ext
+		s3_base_url = r'http://vermont-sanborn-maps.s3.amazonaws.com/from-loc/{}/{}/{}.jpg'
 		self.s3_url = s3_base_url.format(city_text, self.year, self.sheet_num)
 
 		mkdir_p(os.path.dirname(self.local_path))
@@ -52,7 +53,9 @@ class Sheet(object):
 		subprocess.check_call(cmd)
 
 	def dump_vars(self):
-		return {x:y for x, y in self.__dict__.iteritems() if x != 'local_path'}
+		skip_list = ['local_path', 'loc_url']
+
+		return {x:y for x, y in self.__dict__.iteritems() if x not in skip_list}
 
 
 def mkdir_p(path):

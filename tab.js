@@ -5,8 +5,10 @@ window.onload = function() {
   var rand = sheets[Math.floor(Math.random() * sheets.length)];
   var label = toTitleCase(rand.city.replace('_', ' ')) + ', ' + rand.year;
 
-  document.body.style.backgroundImage = 'url(' + rand.loc_url + ')';
-  document.getElementById('label').innerHTML = label
+  var content = '<a target="_blank" href="' + rand.gallery_url + '">' + label + '</a>'
+
+  document.body.style.backgroundImage = 'url(' + rand.s3_url + ')';
+  document.getElementById('label').innerHTML = content
   
 }
 

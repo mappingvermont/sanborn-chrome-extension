@@ -35,10 +35,10 @@ def dump_to_json(sheet_list):
 
 	# add the var so we can just include this in the header
 	# and not worry about loading it asynchronously
-	as_json = 'var sheets = ' + json.dumps(sheet_prop_list)
+	as_js = 'var sheets = ' + json.dumps(sheet_prop_list)
 
 	with open(output_json, 'wb') as thefile:
-		thefile.write(as_json)
+		thefile.write(as_js)
 
 
 if __name__ == '__main__':
