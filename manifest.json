@@ -1,6 +1,7 @@
 {
-  "name": "Vermont Sanborn Maps",
-  "description": "Display historic Sanborn maps on the new tab page",
+  "name": "Vermont Sanborn Maps New Tab Viewer",
+  "short_name": "Vermont Sanborn Maps",
+  "description": "Display historic Sanborn maps from the Library of Congress on the new tab page",
   "version": "0.1",
   "incognito": "split",
   "chrome_url_overrides": {"newtab": "start-page.html"},

@@ -3,7 +3,7 @@
 window.onload = function() {
   
   var rand = sheets[Math.floor(Math.random() * sheets.length)];
-  var label = toTitleCase(rand.city.replace('_', ' ')) + ', ' + rand.year;
+  var label = toTitleCase(rand.city.replace('_', ' ')) + ' ' + rand.year + ', Sheet ' + rand.sheet_num;
 
   var content = '<a target="_blank" href="' + rand.gallery_url + '">' + label + '</a>'
 
