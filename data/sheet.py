@@ -20,7 +20,8 @@ class Sheet(object):
 		self.s3_url = None
 		self.local_path = None
 
-	@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+	@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000,
+		   stop_max_attempt_number=3)
 	def download(self):
 		city_text = self.city.replace(' ', '_')
 
@@ -38,7 +39,7 @@ class Sheet(object):
 		if r.status_code == 200:
 		    with open(self.local_path, 'wb') as f:
 		        r.raw.decode_content = True
-		        shutil.copyfileobj(r.raw, f)  
+		        shutil.copyfileobj(r.raw, f)
 		else:
 			print self.city, self.year, self.sheet_num
 			print self.loc_url
@@ -66,5 +67,3 @@ def mkdir_p(path):
             pass
         else:
             raise
-
-

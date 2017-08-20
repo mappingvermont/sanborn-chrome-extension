@@ -44,5 +44,3 @@ def dump_to_json(sheet_list):
 if __name__ == '__main__':
 
 	main()
-
-
